@@ -36,5 +36,18 @@ public @interface ExcelProperty {
 	 * 校验规则类
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	Class<? extends ExcelRule> rule() default NoneRule.class;
+	/**
+	 * 正则表达式校验规则
+	 * 	该项仅对java.lang.String, java.lang.Long, java.lang.Short, 
+	 * java.lang.Integer类型有效
+	 * @return
+	 */
+	String regexp() default "";
+	/**
+	 * 正则规则校验失败错误提示信息
+	 * @return
+	 */
+	String regexpErrorMessage() default "";
 }

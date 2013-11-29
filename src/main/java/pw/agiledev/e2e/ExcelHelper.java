@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -25,6 +26,7 @@ import pw.agiledev.e2e.annotation.ExcelEntity;
 import pw.agiledev.e2e.annotation.ExcelProperty;
 import pw.agiledev.e2e.exception.ExcelContentInvalidException;
 import pw.agiledev.e2e.exception.ExcelParseException;
+import pw.agiledev.e2e.exception.ExcelRegexpValidFailedException;
 import pw.agiledev.e2e.extension.ExcelRule;
 import pw.agiledev.e2e.extension.ExcelType;
 
@@ -166,8 +168,10 @@ public class ExcelHelper {
 	 * @author 管宜尧
 	 * 2013-11-28 下午4:34:48
 	 * @throws ExcelParseException 
+	 * @throws ExcelContentInvalidException 
+	 * @throws ExcelRegexpValidFailedException 
 	 */
-	public <T> List<T>  toEntitys(Class<T> classType) throws ExcelParseException{
+	public <T> List<T>  toEntitys(Class<T> classType) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException{
 		// 如果实体没有@ExcelEntity，则不允许继续操作
 		ExcelEntity excelEntity = classType.getAnnotation(ExcelEntity.class);
 		if(excelEntity == null){
@@ -184,15 +188,19 @@ public class ExcelHelper {
 				T obj = classType.newInstance();
 				// 遍历实体对象的实体字段，通过反射为实体字段赋值
 				for(ExcelEntityField eef : eefs){
+					
+					// 如果字段非必须同时字段内容为空，则跳过，不需要进行填充
+					// 如果字段非必填，但是内容不为空，还是需要校验填写的
+					if(!eef.isRequired() && "".equals(data[eef.getIndex()])){
+						continue;
+					}
+					// 实体数据填充
 					Method method = obj.getClass().getDeclaredMethod("set" + 
 							_toCapitalizeCamelCase(eef.getField().getName()), 
 							eef.getField().getType());
 					try{
 						method.invoke(obj, _getFieldValue(data[eef.getIndex()], eef));
-					}catch(ExcelContentInvalidException e){
-						// 字段内容校验异常
-						throw new ExcelParseException(e);
-					}catch(Exception e){
+					}catch(ExcelParseException e){
 						if(eef.isRequired()){
 							throw new ExcelParseException("字段" + eef.getColumnName() + "出错!", e);
 						}
@@ -201,7 +209,17 @@ public class ExcelHelper {
 				}
 				entitys.add(obj);
 			}
-		} catch (Exception e) {
+		} catch (InstantiationException e1) {
+			throw new ExcelParseException(e1);
+		} catch (IllegalAccessException e1) {
+			throw new ExcelParseException(e1);
+		} catch (NoSuchMethodException e1) {
+			throw new ExcelParseException(e1);
+		} catch (SecurityException e1) {
+			throw new ExcelParseException(e1);
+		}catch (IllegalArgumentException e) {
+			throw new ExcelParseException(e);
+		} catch (InvocationTargetException e) {
 			throw new ExcelParseException(e);
 		}
 		
@@ -285,14 +303,27 @@ public class ExcelHelper {
 	 * @throws ExcelContentInvalidException 
 	 */
 	@SuppressWarnings("rawtypes")
-	private Object _getFieldValue(String value, ExcelEntityField eef) throws ExcelParseException, InstantiationException, IllegalAccessException, ExcelContentInvalidException {
-		// 获取解析后的字段结果
-		Object result = _getFieldValue(value, eef.getField());
-		
+	private Object _getFieldValue(String value, ExcelEntityField eef) throws ExcelParseException, InstantiationException, IllegalAccessException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
 		// 进行规则校验
 		ExcelProperty annotation = eef.getAnnotation();
 		Class<? extends ExcelRule> rule = annotation.rule();
 		
+		// 获取解析后的字段结果
+		Object result = null;
+		try{
+			result = _getFieldValue(value, eef.getField(), annotation.regexp());
+		}catch(ExcelRegexpValidFailedException e){
+			// 捕获正则验证失败异常
+			String errMsg = annotation.regexpErrorMessage();
+			if("".equals(errMsg)){
+				errMsg = "列 " + eef.getColumnName() + " 没有通过规则验证!";
+			}
+			throw new ExcelContentInvalidException(errMsg, e);
+		}catch (NumberFormatException e) {
+			throw new ExcelContentInvalidException("列 " + eef.getColumnName() + " 数据类型错误!");
+		}catch (NullPointerException e){
+			throw new ExcelContentInvalidException("列 " + eef.getColumnName() + " 不能为空!");
+		}
 		/**
 		 * 缓存已经实例化过的对象，避免每次都重新
 		 * 创建新的对象的额外消耗
@@ -315,26 +346,40 @@ public class ExcelHelper {
 	 * @param field
 	 * @return
 	 * @throws ExcelParseException
+	 * @throws ExcelContentInvalidException 
+	 * @throws ExcelRegexpValidFailedException 
 	 */
 	@SuppressWarnings("rawtypes")
-	private Object _getFieldValue(String value, Field field) throws ExcelParseException {
+	private Object _getFieldValue(String value, Field field, String regexp) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
 		Class<?> type = field.getType();
 		String typeName = type.getName();
 		
 		// 字符串
 		if("java.lang.String".equals(typeName)){
+			if(!"".equals(regexp) && !value.matches(regexp)){
+				throw new ExcelRegexpValidFailedException();
+			}
 			return value;
 		}
 		// 长整形
 		if("java.lang.Long".equals(typeName) || "long".equals(typeName)){
+			if(!"".equals(regexp) && !value.matches(regexp)){
+				throw new ExcelRegexpValidFailedException();
+			}
 			return Long.parseLong(value);
 		}
 		// 整形
 		if("java.lang.Integer".equals(typeName) || "int".equals(typeName)){
+			if(!"".equals(regexp) && !value.matches(regexp)){
+				throw new ExcelRegexpValidFailedException();
+			}
 			return Integer.parseInt(value);
 		}
 		// 短整型
 		if("java.lang.Short".equals(typeName) || "short".equals(typeName)){
+			if(!"".equals(regexp) && !value.matches(regexp)){
+				throw new ExcelRegexpValidFailedException();
+			}
 			return Short.parseShort(value);
 		}
 		// Date型
@@ -359,7 +404,7 @@ public class ExcelHelper {
 				return value.charAt(0);
 			}
 		}
-		
+		// 用户注册的自定义类型
 		for(Class<? extends ExcelType> et : userDefinedType){
 			if(et.getName().equals(typeName)){
 				try {

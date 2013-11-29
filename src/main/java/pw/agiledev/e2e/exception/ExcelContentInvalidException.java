@@ -13,6 +13,8 @@ public class ExcelContentInvalidException extends Exception {
 	public ExcelContentInvalidException(Exception e){
 		initCause(e);
 	}
+	public ExcelContentInvalidException(){
+	}
 	
 	public ExcelContentInvalidException(String message){
 		this.message = message;

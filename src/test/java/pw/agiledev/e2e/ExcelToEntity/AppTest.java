@@ -1,14 +1,14 @@
 package pw.agiledev.e2e.ExcelToEntity;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import pw.agiledev.e2e.ExcelHelper;
+import pw.agiledev.e2e.exception.ExcelContentInvalidException;
 import pw.agiledev.e2e.exception.ExcelParseException;
+import pw.agiledev.e2e.exception.ExcelRegexpValidFailedException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 /**
@@ -23,38 +23,12 @@ public class AppTest extends TestCase {
 		ExcelHelper.registerNewType(MyDataType2.class);
 	}
 	
-	public void testRegister() throws ExcelParseException{
-		ExcelHelper.registerNewType(MyDataType.class);
-		ExcelHelper.registerNewType(MyDataType.class);
-		ExcelHelper.registerNewType(MyDataType.class);
-		ExcelHelper.registerNewType(MyDataType.class);
-		
-		ExcelHelper.registerNewType(MyDataType2.class);
-		ExcelHelper.registerNewType(MyDataType2.class);
-		ExcelHelper.registerNewType(MyDataType2.class);
-		ExcelHelper.registerNewType(MyDataType2.class);
-		
-	}
-	
     public void testApp() throws InvalidFormatException, IOException{
     	ExcelHelper eh = ExcelHelper.readExcel("111.xls");
 
 		String[] headers = eh.getHeaders();
-		for (String s : headers) {
-			System.out.print("[" + s + "]   ");
-		}
-
-		System.out.println();
-
 		String[][] datas = eh.getDatas();
-		for (String[] strs : datas) {
-			for (String str : strs) {
-				System.out.print("[" + str + "]   ");
-			}
-			System.out.println();
-		}
-
-		System.out.println();
+		
 		List<Demo> entitys  = null;
 		try {
 			entitys = eh.toEntitys(Demo.class);
@@ -62,7 +36,11 @@ public class AppTest extends TestCase {
 				System.out.println(d.toString());
 			}
 		} catch (ExcelParseException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+		} catch (ExcelContentInvalidException e) {
+			System.err.println(e.getMessage());
+		} catch (ExcelRegexpValidFailedException e) {
+			System.err.println(e.getMessage());
 		}
 		
 		Assert.assertEquals(5, headers.length);
