@@ -36,16 +36,16 @@ public class AppTest extends TestCase {
 				System.out.println(d.toString());
 			}
 		} catch (ExcelParseException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		} catch (ExcelContentInvalidException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		} catch (ExcelRegexpValidFailedException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 		
 		Assert.assertEquals(5, headers.length);
 		Assert.assertEquals(3, datas.length);
-		Assert.assertNotNull(entitys);
+		//Assert.assertNotNull(entitys);
     }
     
 }
