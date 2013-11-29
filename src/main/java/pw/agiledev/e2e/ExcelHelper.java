@@ -9,7 +9,9 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -21,7 +23,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import pw.agiledev.e2e.annotation.ExcelEntity;
 import pw.agiledev.e2e.annotation.ExcelProperty;
+import pw.agiledev.e2e.exception.ExcelContentInvalidException;
 import pw.agiledev.e2e.exception.ExcelParseException;
+import pw.agiledev.e2e.extension.ExcelRule;
 import pw.agiledev.e2e.extension.ExcelType;
 
 /**
@@ -45,11 +49,18 @@ import pw.agiledev.e2e.extension.ExcelType;
  * 2013-11-28 上午10:20:53
  */
 public class ExcelHelper {
-	final public static int MIN_ROW_COLUMN_COUNT = 4;
-	private int lastColumnIndex = 4;
+	// 最小列数目
+	final public static int MIN_ROW_COLUMN_COUNT = 1;
+	// 列索引
+	private int lastColumnIndex;
+	// 从Excel中读取的标题栏
 	private String [] headers  = null;
+	// 从Excel中读取的数据
 	private String [][] datas = null;
-
+	// 规则对象缓存
+	@SuppressWarnings("rawtypes")
+	private static Map<String, ExcelRule> rulesCache = new HashMap<String, ExcelRule>();
+	
 	private ExcelHelper(){}
 	
 	@SuppressWarnings("rawtypes")
@@ -177,11 +188,13 @@ public class ExcelHelper {
 							_toCapitalizeCamelCase(eef.getField().getName()), 
 							eef.getField().getType());
 					try{
-						System.out.println(_getFieldValue(data[eef.getIndex()], eef.getField()));
-						method.invoke(obj, _getFieldValue(data[eef.getIndex()], eef.getField()));
+						method.invoke(obj, _getFieldValue(data[eef.getIndex()], eef));
+					}catch(ExcelContentInvalidException e){
+						// 字段内容校验异常
+						throw new ExcelParseException(e);
 					}catch(Exception e){
 						if(eef.isRequired()){
-							throw new ExcelParseException("字段" + eef.getFieldName() + "出错!", e);
+							throw new ExcelParseException("字段" + eef.getColumnName() + "出错!", e);
 						}
 						continue;
 					}
@@ -251,9 +264,10 @@ public class ExcelHelper {
 			}
 			
 			eef.setField(field);
-			eef.setFieldName(key);
+			eef.setColumnName(key);
 			eef.setRequired(required);
 			eef.setIndex(_indexOfHeader(key));
+			eef.setAnnotation(excelProperty);
 			
 			eefs.add(eef);
 		}
@@ -266,11 +280,47 @@ public class ExcelHelper {
 	 * 	field 需要填充的字段
 	 * @author 管宜尧
 	 * 2013-11-28 下午7:55:35
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws ExcelContentInvalidException 
+	 */
+	@SuppressWarnings("rawtypes")
+	private Object _getFieldValue(String value, ExcelEntityField eef) throws ExcelParseException, InstantiationException, IllegalAccessException, ExcelContentInvalidException {
+		// 获取解析后的字段结果
+		Object result = _getFieldValue(value, eef.getField());
+		
+		// 进行规则校验
+		ExcelProperty annotation = eef.getAnnotation();
+		Class<? extends ExcelRule> rule = annotation.rule();
+		
+		/**
+		 * 缓存已经实例化过的对象，避免每次都重新
+		 * 创建新的对象的额外消耗
+		 */
+		ExcelRule ruleObj = null;
+		if(rulesCache.containsKey(rule.getName())){
+			ruleObj = rulesCache.get(rule.getName());
+		}else{
+			ruleObj = rule.newInstance();
+			rulesCache.put(rule.getName(), ruleObj);
+		}
+		
+		// 进行校验
+		ruleObj.check(result, eef.getColumnName(), eef.getField().getName());
+		return ruleObj.filter(result, eef.getColumnName(), eef.getField().getName());
+	}
+	/**
+	 * 解析字段类型
+	 * @param value
+	 * @param field
+	 * @return
+	 * @throws ExcelParseException
 	 */
 	@SuppressWarnings("rawtypes")
 	private Object _getFieldValue(String value, Field field) throws ExcelParseException {
 		Class<?> type = field.getType();
 		String typeName = type.getName();
+		
 		// 字符串
 		if("java.lang.String".equals(typeName)){
 			return value;
@@ -439,10 +489,11 @@ public class ExcelHelper {
 	 * 2013-11-28 下午7:56:37
 	 */
 	private class ExcelEntityField{
-		private String fieldName;
+		private String columnName;
 		private boolean required;
 		private Field field;
 		private int index;
+		private ExcelProperty annotation;
 		
 		public int getIndex() {
 			return index;
@@ -450,11 +501,12 @@ public class ExcelHelper {
 		public void setIndex(int index) {
 			this.index = index;
 		}
-		public String getFieldName() {
-			return fieldName;
+
+		public String getColumnName() {
+			return columnName;
 		}
-		public void setFieldName(String fieldName) {
-			this.fieldName = fieldName;
+		public void setColumnName(String columnName) {
+			this.columnName = columnName;
 		}
 		public boolean isRequired() {
 			return required;
@@ -467,6 +519,12 @@ public class ExcelHelper {
 		}
 		public void setField(Field field) {
 			this.field = field;
+		}
+		public ExcelProperty getAnnotation() {
+			return annotation;
+		}
+		public void setAnnotation(ExcelProperty annotation) {
+			this.annotation = annotation;
 		}
 	}
 	

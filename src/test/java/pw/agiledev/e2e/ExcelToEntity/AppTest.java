@@ -1,7 +1,9 @@
 package pw.agiledev.e2e.ExcelToEntity;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -35,9 +37,6 @@ public class AppTest extends TestCase {
 	}
 	
     public void testApp() throws InvalidFormatException, IOException{
-    	
-    	
-    	
     	ExcelHelper eh = ExcelHelper.readExcel("111.xls");
 
 		String[] headers = eh.getHeaders();
@@ -70,4 +69,5 @@ public class AppTest extends TestCase {
 		Assert.assertEquals(3, datas.length);
 		Assert.assertNotNull(entitys);
     }
+    
 }

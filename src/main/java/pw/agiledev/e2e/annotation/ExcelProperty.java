@@ -5,6 +5,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import pw.agiledev.e2e.extension.ExcelRule;
+import pw.agiledev.e2e.rule.NoneRule;
 /**
  * 功能说明： 标记字段为Excel填充字段
  * 参数说明：
@@ -29,4 +32,9 @@ public @interface ExcelProperty {
 	 * 2013-11-28 下午4:41:05
 	 */
 	boolean required() default false;
+	/**
+	 * 校验规则类
+	 * @return
+	 */
+	Class<? extends ExcelRule> rule() default NoneRule.class;
 }

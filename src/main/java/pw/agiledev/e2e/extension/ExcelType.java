@@ -13,7 +13,4 @@ public abstract class ExcelType<T> {
 	public int hashCode() {
 		return getClass().hashCode();
 	}
-	
-	
-	
 }

@@ -12,7 +12,7 @@ import pw.agiledev.e2e.annotation.ExcelProperty;
  */
 @ExcelEntity
 public class Demo {
-	@ExcelProperty("Name")
+	@ExcelProperty(value="Name", rule=MyStringCheckRule.class)
 	private String name;
 
 	@ExcelProperty("Sex")
