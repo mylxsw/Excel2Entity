@@ -86,9 +86,27 @@ public class ExcelHelper {
 	 * 2013-11-28 下午3:40:05
 	 */
 	public static ExcelHelper readExcel(String excelFilename, int sheetIndex) throws InvalidFormatException, IOException{
+		return readExcel(new File(excelFilename), sheetIndex);
+	}
+	/**
+	 * 功能说明： 读取Excel内容
+	 * 参数说明：
+	 * @author 管宜尧
+	 * 2013-11-28 下午3:40:05
+	 */
+	public static ExcelHelper readExcel(File file) throws InvalidFormatException, IOException{
+		return readExcel(file, 0);
+	}
+	/**
+	 * 功能说明： 读取Excel内容
+	 * 参数说明：
+	 * @author 管宜尧
+	 * 2013-11-28 下午3:40:05
+	 */
+	public static ExcelHelper readExcel(File file, int sheetIndex) throws InvalidFormatException, IOException{
 		ExcelHelper eh = new ExcelHelper();
 		// 读取Excel工作薄
-		Workbook wb = WorkbookFactory.create(new File(excelFilename));
+		Workbook wb = WorkbookFactory.create(file);
 		// 遍历Excel Sheet， 依次读取里面的内容
 		if(sheetIndex > wb.getNumberOfSheets()){
 			return null;
