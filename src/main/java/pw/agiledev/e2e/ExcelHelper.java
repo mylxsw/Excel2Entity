@@ -2,6 +2,7 @@ package pw.agiledev.e2e;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
@@ -104,24 +105,32 @@ public class ExcelHelper {
 	 * 2013-11-28 下午3:40:05
 	 */
 	public static ExcelHelper readExcel(File file, int sheetIndex) throws InvalidFormatException, IOException{
-		ExcelHelper eh = new ExcelHelper();
 		// 读取Excel工作薄
 		Workbook wb = WorkbookFactory.create(file);
-		// 遍历Excel Sheet， 依次读取里面的内容
-		if(sheetIndex > wb.getNumberOfSheets()){
-			return null;
-		}
-		Sheet sheet = wb.getSheetAt(sheetIndex);
-		// 遍历表格的每一行
-		int rowStart = sheet.getFirstRowNum();
-		// 最小行数为1行
-		int rowEnd = sheet.getLastRowNum();
-		// 读取EXCEL标题栏
-		eh._parseExcelHeader(sheet.getRow(0));
-		// 读取EXCEL数据区域内容
-		eh._parseExcelData(sheet, rowStart + 1, rowEnd );
-		return eh;
+		return _readExcel(wb, sheetIndex);
 	}
+	/**
+	 * 从文件流读取Excel
+	 * @param ins
+	 * @return
+	 * @throws InvalidFormatException
+	 * @throws IOException
+	 */
+	public static ExcelHelper readExcel(InputStream ins) throws InvalidFormatException, IOException{
+		return readExcel(ins, 0);
+	}
+	/**
+	 * 读取Excel内容（从文件流）
+	 * @param ins
+	 * @param sheetIndex
+	 * @return
+	 * @throws InvalidFormatException
+	 * @throws IOException
+	 */
+	public static ExcelHelper readExcel(InputStream ins, int sheetIndex) throws InvalidFormatException, IOException{
+		return _readExcel(WorkbookFactory.create(ins), sheetIndex);
+	}
+	
 	/**
 	 * 功能说明： 获取表格数据二维表
 	 * 参数说明：
@@ -400,7 +409,29 @@ public class ExcelHelper {
 		}
 		return value;
 	}
-	
+	/**
+	 * 读取Excel内容
+	 * @param wb
+	 * @param sheetIndex
+	 * @return
+	 */
+	private static ExcelHelper _readExcel(Workbook wb, int sheetIndex){
+		ExcelHelper eh = new ExcelHelper();
+		// 遍历Excel Sheet， 依次读取里面的内容
+		if(sheetIndex > wb.getNumberOfSheets()){
+			return null;
+		}
+		Sheet sheet = wb.getSheetAt(sheetIndex);
+		// 遍历表格的每一行
+		int rowStart = sheet.getFirstRowNum();
+		// 最小行数为1行
+		int rowEnd = sheet.getLastRowNum();
+		// 读取EXCEL标题栏
+		eh._parseExcelHeader(sheet.getRow(0));
+		// 读取EXCEL数据区域内容
+		eh._parseExcelData(sheet, rowStart + 1, rowEnd );
+		return eh;
+	}
 	/**
 	 * 功能说明： Excel实体字段类（内部类）
 	 * 参数说明：
