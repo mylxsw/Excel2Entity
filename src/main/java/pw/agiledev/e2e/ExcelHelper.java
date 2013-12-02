@@ -385,7 +385,7 @@ public class ExcelHelper {
 		// Date型
 		if("java.util.Date".equals(typeName)){
 			try {
-				return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value);
+				return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value);
 			} catch (ParseException e) {
 				throw new ExcelParseException("日期类型格式有误!");
 			}
@@ -393,7 +393,7 @@ public class ExcelHelper {
 		// Timestamp
 		if("java.sql.Timestamp".equals(typeName)){
 			try {
-				return new Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value).getTime());
+				return new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
 			} catch (ParseException e) {
 				throw new ExcelParseException("时间戳类型格式有误!");
 			}
@@ -489,7 +489,7 @@ public class ExcelHelper {
 				break;
 			case Cell.CELL_TYPE_NUMERIC:
 				if (DateUtil.isCellDateFormatted(cell)){
-					value = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cell.getDateCellValue());
+					value = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(cell.getDateCellValue());
 				}else{
 					value = (long)cell.getNumericCellValue() + "";
 				}
