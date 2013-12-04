@@ -191,9 +191,9 @@ public class ExcelHelper {
 					
 					// 如果字段非必须同时字段内容为空，则跳过，不需要进行填充
 					// 如果字段非必填，但是内容不为空，还是需要校验填写的
-					if(!eef.isRequired() && "".equals(data[eef.getIndex()])){
-						continue;
-					}
+//					if(!eef.isRequired() && "".equals(data[eef.getIndex()])){
+//						continue;
+//					}
 					// 实体数据填充
 					Method method = obj.getClass().getDeclaredMethod("set" + 
 							_toCapitalizeCamelCase(eef.getField().getName()), 
@@ -203,6 +203,11 @@ public class ExcelHelper {
 					}catch(ExcelParseException e){
 						if(eef.isRequired()){
 							throw new ExcelParseException("字段" + eef.getColumnName() + "出错!", e);
+						}
+						continue;
+					}catch(ExcelContentInvalidException e){
+						if(eef.isRequired()){
+							throw e;
 						}
 						continue;
 					}
@@ -311,6 +316,12 @@ public class ExcelHelper {
 		// 获取解析后的字段结果
 		Object result = null;
 		try{
+			// 是否提交过来的是空值
+			// 如果提交值是空值而且含有默认值的话
+			// 则让提交过来的空值为默认值
+			if(("".equals(value) || (value == null)) && annotation.hasDefaultValue()){
+				value = annotation.defaultValue();
+			}
 			result = _getFieldValue(value, eef.getField(), annotation.regexp());
 		}catch(ExcelRegexpValidFailedException e){
 			// 捕获正则验证失败异常
@@ -325,7 +336,7 @@ public class ExcelHelper {
 			throw new ExcelContentInvalidException("列 " + eef.getColumnName() + " 不能为空!");
 		}
 		/**
-		 * 缓存已经实例化过的对象，避免每次都重新
+		 * 缓存已经实例化过的规则对象，避免每次都重新
 		 * 创建新的对象的额外消耗
 		 */
 		ExcelRule ruleObj = null;
@@ -338,7 +349,9 @@ public class ExcelHelper {
 		
 		// 进行校验
 		ruleObj.check(result, eef.getColumnName(), eef.getField().getName());
-		return ruleObj.filter(result, eef.getColumnName(), eef.getField().getName());
+		result = ruleObj.filter(result, eef.getColumnName(), eef.getField().getName());
+		
+		return result;
 	}
 	/**
 	 * 解析字段类型
@@ -353,7 +366,6 @@ public class ExcelHelper {
 	private Object _getFieldValue(String value, Field field, String regexp) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
 		Class<?> type = field.getType();
 		String typeName = type.getName();
-		
 		// 字符串
 		if("java.lang.String".equals(typeName)){
 			if(!"".equals(regexp) && !value.matches(regexp)){

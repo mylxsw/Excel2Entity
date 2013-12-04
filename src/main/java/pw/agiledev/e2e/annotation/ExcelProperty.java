@@ -50,4 +50,16 @@ public @interface ExcelProperty {
 	 * @return
 	 */
 	String regexpErrorMessage() default "";
+	/**
+	 * 默认值
+	 * 	默认值均采用String类型，系统将会自动进行类型转换，不支持对象类型!
+	 * @return
+	 */
+	String defaultValue() default "";
+	/**
+	 * 是否采用默认值
+	 * 如果为true，默认值为空的时候会使用空字符串，否则使用null
+	 * @return
+	 */
+	boolean hasDefaultValue() default false;
 }

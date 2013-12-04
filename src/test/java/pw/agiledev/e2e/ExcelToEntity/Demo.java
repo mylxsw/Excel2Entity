@@ -18,13 +18,13 @@ public class Demo {
 	@ExcelProperty("Sex")
 	private String sex;
 
-	@ExcelProperty(value="Age", regexp="^[1-4]{1}[0-9]{1}$", regexpErrorMessage="年龄必须在10-49岁之间")
+	@ExcelProperty(value="Age", regexp="^[1-9]{1}[0-9]{1}$", regexpErrorMessage="年龄必须在10-99岁之间")
 	private int age;
 
-	@ExcelProperty(value="Tel")
+	@ExcelProperty(value="Tel", defaultValue="18678859721", hasDefaultValue=true)
 	private Long tel;
 	
-	@ExcelProperty("创建时间")
+	@ExcelProperty(value="创建时间")
 	private Timestamp createDate;
 	
 	@ExcelProperty(value="Name", required=true)
