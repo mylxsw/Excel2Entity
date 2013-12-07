@@ -210,6 +210,11 @@ public class ExcelHelper {
 							throw e;
 						}
 						continue;
+					}catch(NullPointerException e){
+						if(eef.isRequired()){
+							throw new ExcelParseException("字段" + eef.getColumnName() + "出错!", e);
+						}
+						continue;
 					}
 				}
 				entitys.add(obj);
