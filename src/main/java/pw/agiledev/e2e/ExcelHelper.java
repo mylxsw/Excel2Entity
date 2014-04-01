@@ -231,6 +231,8 @@ public class ExcelHelper {
 			throw new ExcelParseException(e);
 		} catch (InvocationTargetException e) {
 			throw new ExcelParseException(e);
+		}catch(Exception e){
+			throw new ExcelParseException(e);
 		}
 		
 		return entitys;
