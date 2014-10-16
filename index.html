@@ -28,37 +28,85 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+          <h1>
+<a name="excel2entity" class="anchor" href="#excel2entity"><span class="octicon octicon-link"></span></a>Excel2Entity</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<div>
+                            <p>该类库（Excel2Entity, 简称e2e）对POI对xls文件的读取进行了封装，实现了批量导入Excel中的数据时自动将数据填充到实体列表的功能， 支持字段类型校验以及自定义校验规则，可以对Excel中的数据类型合法性进行校验，同时e2e提供了一定的扩展性，可以自定义校验规则以及自定义实体对象字段类型实现更加负责的校验以及字段类型填充。</p>
+<ul>
+<li><p><strong>Excel2Entity依赖于Apache POI类库。</strong></p></li>
+<li><p><strong>项目基于Maven。</strong></p></li>
+<li><p><strong>项目托管在Github。</strong><br></p></li>
+</ul>
+<pre>https://github.com/mylxsw/Excel2Entity.git</pre>
+<p><br></p>
+<ul><li><p><strong>使用方法：</strong></p></li></ul>
+<p><br></p>
+<p>    1. 普通实体创建<br></p>
+<p>    </p>
+<pre>ExcelHelper eh = ExcelHelper.readExcel("111.xls");
+List&lt;Demo&gt; entitys  = null;
+try {
+    entitys = eh.toEntitys(Demo.class);
+    for (Demo d : entitys) {
+        System.out.println(d.toString());
+    }
+} catch (ExcelParseException e) {
+    System.out.println(e.getMessage());
+} catch (ExcelContentInvalidException e) {
+    System.out.println(e.getMessage());
+} catch (ExcelRegexpValidFailedException e) {
+    System.out.println(e.getMessage());
+}</pre>
+<p>    2. 注册新的字段类型<br></p>
+<p>    注册的新的字段类型类必须实现ExcelType抽象类。</p>
+<pre>ExcelHelper.registerNewType(MyDataType.class);</pre>
+<p>    3. 实体对象<br></p>
+<p>    实体类必须标注@ExcelEntity注解， 同时需要填充的字段标注@ExcelProperty注解<br></p>
+<p>    </p>
+<pre>@ExcelEntity
+public class Demo {
+    @ExcelProperty(value="Name", rule=MyStringCheckRule.class)
+    private String name;
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+    @ExcelProperty("Sex")
+    private String sex;
+        // 基于正则表达式的字段校验
+    @ExcelProperty(value="Age", regexp="^[1-4]{1}[0-9]{1}$", regexpErrorMessage="年龄必须在10-49岁之间")
+    private int age;
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+    @ExcelProperty(value="Tel")
+    private Long tel;
+    
+    @ExcelProperty("创建时间")
+    private Timestamp createDate;
+    
+    @ExcelProperty(value="Name", required=true)
+    private MyDataType name2;
+    
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+... [get/set方法]
+}</pre>
+<p>    4. 自定义校验规则<br></p>
+<p>    自定义校验规则必须实现ExcelRule接口</p>
+<pre>public class MyStringCheckRule implements ExcelRule&lt;String&gt; {
+        // 字段检查
+    public void check(Object value, String columnName, String fieldName) throws ExcelContentInvalidException {
+        String val = (String) value;
+        System.out.println("--------&gt;   检测的列名为  " + columnName + "， 填充的字段名为 " + fieldName );
+        if(val.length() &gt; 10){
+            throw new ExcelContentInvalidException("内容超长!");
+        }
+    }
+        // 结果修改
+    public String filter(Object value, String columnName, String fieldName) {
+        String val = (String) value;
+        return "[[[[" + val + "]]]";
+    }
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+}</pre>
+<p><br></p>                        <p> 转载请注明来源:  <a href="http://aicode.cc/article/319.html">http://aicode.cc/article/319.html</a> </p>
+        </div>
         </section>
 
         <aside id="sidebar">
