@@ -2,10 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+<<<<<<< HEAD
     <groupId>pw.agiledev.e2e</groupId>
     <artifactId>ExcelToEntity</artifactId>
     <version>1.0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
+=======
+  <groupId>cc.aicode.java.e2e</groupId>
+  <artifactId>ExcelToEntity</artifactId>
+  <version>1.0.0.2</version>
+  <packaging>jar</packaging>
+>>>>>>> da1237944384960f9e3cc621702664ccbaf25a8f
 
     <name>ExcelToEntity</name>
     <url>http://maven.apache.org</url>
