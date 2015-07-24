@@ -1,2 +1,4 @@
 /build
 /target
+.idea
+Excel2Entity.iml
