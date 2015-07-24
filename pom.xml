@@ -1,21 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-<<<<<<< HEAD
-    <groupId>pw.agiledev.e2e</groupId>
+    <groupId>cc.aicode.java.e2e</groupId>
     <artifactId>ExcelToEntity</artifactId>
-    <version>1.0.0.2-SNAPSHOT</version>
+    <version>1.0.0.3</version>
     <packaging>jar</packaging>
-=======
-  <groupId>cc.aicode.java.e2e</groupId>
-  <artifactId>ExcelToEntity</artifactId>
-  <version>1.0.0.2</version>
-  <packaging>jar</packaging>
->>>>>>> da1237944384960f9e3cc621702664ccbaf25a8f
 
     <name>ExcelToEntity</name>
-    <url>http://maven.apache.org</url>
+    <url>http://aicode.cc</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
