@@ -5,6 +5,17 @@ Excel2Entity对`Java POI`对`xls`文件的读取进行了封装，实现了批�
 
 该类库也实现了在创建实体对象时对字段类型进行校验，可以对Excel中的数据类型合法性进行校验，通过实现扩展接口，可以实现自定义校验规则以及自定义实体对象字段类型等更加复杂的校验规则和字段类型转换。
 
+###安装配置
+
+`Excel2Entity`类库已经加入到Maven中央仓库，如果你的项目使用了Maven，则可以通过添加下面的Maven依赖配置项将该类库加入到您的项目.
+
+    <dependency>
+        <groupId>cc.aicode.java.e2e</groupId>
+        <artifactId>ExcelToEntity</artifactId>
+        <version>1.0.0.3</version>
+    </dependency>
+
+
 ###依赖
 
 Excel2Entity依赖于`Apache POI`类库。
