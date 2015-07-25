@@ -22,6 +22,8 @@ Excel2Entity依赖于`Apache POI`类库。
 
 ###使用说明
 
+使用示例请参考`src/test/java/cc/aicode/e2e/Excel2Entity/AppTest`测试用例。
+
 ####普通实体创建
 
         ExcelHelper eh = ExcelHelper.readExcel("111.xls");
