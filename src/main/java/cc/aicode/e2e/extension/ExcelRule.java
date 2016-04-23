@@ -6,8 +6,6 @@ import cc.aicode.e2e.exception.ExcelContentInvalidException;
  * 校验规则接口
  *
  * @param <T>
- * @author code.404
- * @2013年11月29日 Site : http://blog.agiledev.pw
  */
 public interface ExcelRule<T> {
     /**
@@ -15,6 +13,8 @@ public interface ExcelRule<T> {
      * 如果内容不合法，则抛出ExcelContentInvalidException
      *
      * @param value
+     * @param columnName
+     * @param fieldName
      * @throws ExcelContentInvalidException
      */
     public void check(Object value, String columnName, String fieldName) throws ExcelContentInvalidException;
@@ -24,6 +24,8 @@ public interface ExcelRule<T> {
      * 在该方法中对内容进行修改，并返回修改后的对象
      *
      * @param value
+     * @param columnName
+     * @param fieldName
      * @return
      */
     public T filter(Object value, String columnName, String fieldName);

@@ -31,35 +31,38 @@ import cc.aicode.e2e.extension.ExcelRule;
 import cc.aicode.e2e.extension.ExcelType;
 
 /**
- * 功能说明： EXCEL操作助手
- * 操作说明：
+ * EXCEL操作助手函数
+ *
  * 使用方法很简单，只需要使用静态方法readExcel即可。
- * <code>
- * ExcelHelper eh = ExcelHelper.readExcel("excel文件名");
- * </code>
- * 如果要读取Excel中的标题栏有哪些
- * <code>eh.getHeaders()</code>
- * 如果要读取Excel中的数区域
- * <code>eh.getDatas()</code>
+ *      ExcelHelper eh = ExcelHelper.readExcel("excel文件名");
+ * 如果要读取Excel中的标题栏有哪些 `eh.getHeaders()`
+ * 如果要读取Excel中的数区域 `eh.getDatas()`
  * 读取到的数据按照Excel中存放的行列形式存放在二维数组中
- * 如果需要转换为实体列表的话
- * <code>eh.toEntitys(实体.class)</code>
- * 注意到是，实体类必须含有@ExcelEntity注解，同时需要用到的属性字段上需要
+ * 如果需要转换为实体列表的话 `eh.toEntitys(实体.class)`
+ * 注意的是，实体类必须含有@ExcelEntity注解，同时需要用到的属性字段上需要
  * 用@ExcelProperty标注。
  *
- * @author 管宜尧
- *         2013-11-28 上午10:20:53
  */
 public class ExcelHelper {
-    // 最小列数目
+    /**
+     * 最小列数目
+     */
     final public static int MIN_ROW_COLUMN_COUNT = 1;
-    // 列索引
+    /**
+     * 列索引
+     */
     private int lastColumnIndex;
-    // 从Excel中读取的标题栏
+    /**
+     * 从Excel中读取的标题栏
+     */
     private String[] headers = null;
-    // 从Excel中读取的数据
+    /**
+     * 从Excel中读取的数据
+     */
     private String[][] datas = null;
-    // 规则对象缓存
+    /**
+     * 规则对象缓存
+     */
     @SuppressWarnings("rawtypes")
     private static Map<String, ExcelRule> rulesCache = new HashMap<String, ExcelRule>();
 
@@ -71,13 +74,11 @@ public class ExcelHelper {
             userDefinedType = new ArrayList<Class<? extends ExcelType>>();
 
     /**
-     * 功能说明： 注册新字段类型
-     * 参数说明：
+     * 注册新字段类型
      * 扩展字段类型必须ExcelType抽象数据类型
      *
+     * @param type
      * @throws ExcelParseException
-     * @author 管宜尧
-     * 2013-11-28 下午9:06:41
      */
     public static void registerNewType(@SuppressWarnings("rawtypes") Class<? extends ExcelType> type)
             throws ExcelParseException {
@@ -87,44 +88,50 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 读取Excel内容
-     * 参数说明：
+     * 读取Excel内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午4:18:32
+     * @param excelFilename
+     * @return
+     * @throws InvalidFormatException
+     * @throws IOException
      */
     public static ExcelHelper readExcel(String excelFilename) throws InvalidFormatException, IOException {
         return readExcel(excelFilename, 0);
     }
 
     /**
-     * 功能说明： 读取Excel内容
-     * 参数说明：
+     * 读取Excel内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:40:05
+     * @param excelFilename
+     * @param sheetIndex
+     * @return
+     * @throws InvalidFormatException
+     * @throws IOException
      */
     public static ExcelHelper readExcel(String excelFilename, int sheetIndex) throws InvalidFormatException, IOException {
         return readExcel(new File(excelFilename), sheetIndex);
     }
 
     /**
-     * 功能说明： 读取Excel内容
-     * 参数说明：
+     * 读取Excel内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:40:05
+     * @param file
+     * @return
+     * @throws InvalidFormatException
+     * @throws IOException
      */
     public static ExcelHelper readExcel(File file) throws InvalidFormatException, IOException {
         return readExcel(file, 0);
     }
 
     /**
-     * 功能说明： 读取Excel内容
-     * 参数说明：
+     * 读取Excel内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:40:05
+     * @param file
+     * @param sheetIndex
+     * @return
+     * @throws InvalidFormatException
+     * @throws IOException
      */
     public static ExcelHelper readExcel(File file, int sheetIndex) throws InvalidFormatException, IOException {
         // 读取Excel工作薄
@@ -158,36 +165,32 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 获取表格数据二维表
-     * 参数说明：
+     * 获取表格数据二维表
      *
-     * @author 管宜尧
-     * 2013-11-28 下午4:25:23
+     * @return
      */
     public String[][] getDatas() {
         return datas;
     }
 
     /**
-     * 功能说明： 获取表格标题
-     * 参数说明：
+     * 获取表格标题
      *
-     * @author 管宜尧
-     * 2013-11-28 下午4:25:41
+     * @return
      */
     public String[] getHeaders() {
         return headers;
     }
 
     /**
-     * 功能说明：转换为实体
-     * 参数说明：
+     * 转换为实体
      *
+     * @param classType
+     * @param <T>
+     * @return
      * @throws ExcelParseException
      * @throws ExcelContentInvalidException
      * @throws ExcelRegexpValidFailedException
-     * @author 管宜尧
-     * 2013-11-28 下午4:34:48
      */
     public <T> List<T> toEntitys(Class<T> classType) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
         // 如果实体没有@ExcelEntity，则不允许继续操作
@@ -257,11 +260,10 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 转换驼峰命名方式
-     * 参数说明：
+     * 转换驼峰命名方式
      *
-     * @author 管宜尧
-     * 2013-11-28 下午8:03:35
+     * @param name
+     * @return
      */
     private String _toCapitalizeCamelCase(String name) {
         if (name == null) {
@@ -288,11 +290,12 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 获取Excel实体类中的填充字段
-     * 参数说明：
+     * 获取Excel实体类中的填充字段
      *
-     * @author 管宜尧
-     * 2013-11-28 下午7:55:05
+     * @param classType
+     * @param <T>
+     * @return
+     * @throws ExcelParseException
      */
     private <T> List<ExcelEntityField> _getEntityFields(Class<T> classType) throws ExcelParseException {
         List<ExcelEntityField> eefs = new ArrayList<ExcelHelper.ExcelEntityField>();
@@ -327,16 +330,16 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 获取字段的值，路由不同的字段类型
-     * 参数说明：
-     * value   值
-     * field 需要填充的字段
+     * 获取字段的值，路由不同的字段类型
      *
-     * @throws IllegalAccessException
+     * @param value
+     * @param eef
+     * @return
+     * @throws ExcelParseException
      * @throws InstantiationException
+     * @throws IllegalAccessException
      * @throws ExcelContentInvalidException
-     * @author 管宜尧
-     * 2013-11-28 下午7:55:35
+     * @throws ExcelRegexpValidFailedException
      */
     @SuppressWarnings("rawtypes")
     private Object _getFieldValue(String value, ExcelEntityField eef) throws ExcelParseException, InstantiationException, IllegalAccessException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
@@ -467,11 +470,10 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 列名在列标题中的索引
-     * 参数说明：
+     * 列名在列标题中的索引
      *
-     * @author 管宜尧
-     * 2013-11-28 下午7:57:01
+     * @param columnName
+     * @return
      */
     private int _indexOfHeader(String columnName) {
         for (int i = 0; i < headers.length; i++) {
@@ -483,11 +485,9 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 解析EXCEL标题栏
-     * 参数说明：
+     * 解析EXCEL标题栏
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:47:38
+     * @param row
      */
     private void _parseExcelHeader(Row row) {
         lastColumnIndex = Math.max(row.getLastCellNum(), MIN_ROW_COLUMN_COUNT);
@@ -500,11 +500,11 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 解析EXCEL数据区域内容
-     * 参数说明：
+     * 解析EXCEL数据区域内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:47:27
+     * @param sheet
+     * @param rowStart
+     * @param rowEnd
      */
     private void _parseExcelData(Sheet sheet, int rowStart, int rowEnd) {
         datas = new String[rowEnd][lastColumnIndex];
@@ -521,11 +521,10 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： 读取每个单元格中的内容
-     * 参数说明：
+     * 读取每个单元格中的内容
      *
-     * @author 管宜尧
-     * 2013-11-28 下午3:27:43
+     * @param cell
+     * @return
      */
     private String _getCellValue(Cell cell) {
         // 如果单元格为空的，则返回空字符串
@@ -583,11 +582,8 @@ public class ExcelHelper {
     }
 
     /**
-     * 功能说明： Excel实体字段类（内部类）
-     * 参数说明：
+     * Excel实体字段类（内部类）
      *
-     * @author 管宜尧
-     *         2013-11-28 下午7:56:37
      */
     private class ExcelEntityField {
         private String columnName;

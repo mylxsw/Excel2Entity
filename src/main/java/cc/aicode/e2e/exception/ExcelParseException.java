@@ -1,11 +1,7 @@
 package cc.aicode.e2e.exception;
 
 /**
- * 功能说明： Excel解析异常
- * 参数说明：
- *
- * @author 管宜尧
- *         2013-11-28 下午4:46:59
+ * Excel解析异常
  */
 public class ExcelParseException extends Exception {
     private static final long serialVersionUID = 1L;

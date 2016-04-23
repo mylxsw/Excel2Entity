@@ -3,8 +3,6 @@ package cc.aicode.e2e.exception;
 /**
  * 内容规则校验异常
  *
- * @author code.404
- * @2013年11月29日 Site : http://blog.agiledev.pw
  */
 public class ExcelContentInvalidException extends Exception {
     private static final long serialVersionUID = 1L;
