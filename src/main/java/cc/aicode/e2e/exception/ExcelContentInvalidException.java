@@ -6,7 +6,7 @@ package cc.aicode.e2e.exception;
  */
 public class ExcelContentInvalidException extends Exception {
     private static final long serialVersionUID = 1L;
-    private String message = null;
+    private String message;
 
     public ExcelContentInvalidException(Exception e) {
         initCause(e);

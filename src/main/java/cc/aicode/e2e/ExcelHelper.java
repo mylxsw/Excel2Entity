@@ -55,11 +55,11 @@ public class ExcelHelper {
     /**
      * 从Excel中读取的标题栏
      */
-    private String[] headers = null;
+    private String[] headers;
     /**
      * 从Excel中读取的数据
      */
-    private String[][] datas = null;
+    private String[][] datas;
     /**
      * 规则对象缓存
      */
@@ -210,12 +210,6 @@ public class ExcelHelper {
                 // 遍历实体对象的实体字段，通过反射为实体字段赋值
                 for (ExcelEntityField eef : eefs) {
 
-                    // 如果字段非必须同时字段内容为空，则跳过，不需要进行填充
-                    // 如果字段非必填，但是内容不为空，还是需要校验填写的
-//					if(!eef.isRequired() && "".equals(data[eef.getIndex()])){
-//						continue;
-//					}
-                    // 实体数据填充
                     Method method = obj.getClass().getDeclaredMethod("set" +
                                     _toCapitalizeCamelCase(eef.getField().getName()),
                             eef.getField().getType());
@@ -265,11 +259,10 @@ public class ExcelHelper {
      * @param name
      * @return
      */
-    private String _toCapitalizeCamelCase(String name) {
+    private static String _toCapitalizeCamelCase(String name) {
         if (name == null) {
             return null;
         }
-        //name = name.toLowerCase();
 
         StringBuilder sb = new StringBuilder(name.length());
         boolean upperCase = false;
@@ -307,7 +300,6 @@ public class ExcelHelper {
             if (excelProperty == null) {
                 continue;
             }
-            ExcelEntityField eef = new ExcelEntityField();
 
             String key = excelProperty.value().trim();// Excel Header名
             boolean required = excelProperty.required(); // 该列是否为必须列
@@ -318,6 +310,7 @@ public class ExcelHelper {
                 throw new ExcelParseException("字段" + key + "必须!");
             }
 
+            ExcelEntityField eef = new ExcelEntityField();
             eef.setField(field);
             eef.setColumnName(key);
             eef.setRequired(required);
@@ -345,7 +338,6 @@ public class ExcelHelper {
     private Object _getFieldValue(String value, ExcelEntityField eef) throws ExcelParseException, InstantiationException, IllegalAccessException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
         // 进行规则校验
         ExcelProperty annotation = eef.getAnnotation();
-        Class<? extends ExcelRule> rule = annotation.rule();
 
         // 获取解析后的字段结果
         Object result = null;
@@ -373,7 +365,8 @@ public class ExcelHelper {
          * 缓存已经实例化过的规则对象，避免每次都重新
          * 创建新的对象的额外消耗
          */
-        ExcelRule ruleObj = null;
+        ExcelRule ruleObj;
+        Class<? extends ExcelRule> rule = annotation.rule();
         if (rulesCache.containsKey(rule.getName())) {
             ruleObj = rulesCache.get(rule.getName());
         } else {
@@ -399,7 +392,7 @@ public class ExcelHelper {
      * @throws ExcelRegexpValidFailedException
      */
     @SuppressWarnings("rawtypes")
-    private Object _getFieldValue(String value, Field field, String regexp) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
+    private static Object _getFieldValue(String value, Field field, String regexp) throws ExcelParseException, ExcelContentInvalidException, ExcelRegexpValidFailedException {
         Class<?> type = field.getType();
         String typeName = type.getName();
         // 字符串
@@ -564,7 +557,6 @@ public class ExcelHelper {
      * @return
      */
     private static ExcelHelper _readExcel(Workbook wb, int sheetIndex) {
-        ExcelHelper eh = new ExcelHelper();
         // 遍历Excel Sheet， 依次读取里面的内容
         if (sheetIndex > wb.getNumberOfSheets()) {
             return null;
@@ -575,6 +567,7 @@ public class ExcelHelper {
         // 最小行数为1行
         int rowEnd = sheet.getLastRowNum();
         // 读取EXCEL标题栏
+        ExcelHelper eh = new ExcelHelper();
         eh._parseExcelHeader(sheet.getRow(0));
         // 读取EXCEL数据区域内容
         eh._parseExcelData(sheet, rowStart + 1, rowEnd);

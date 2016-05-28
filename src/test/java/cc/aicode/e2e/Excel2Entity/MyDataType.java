@@ -3,7 +3,7 @@ package cc.aicode.e2e.Excel2Entity;
 import cc.aicode.e2e.extension.ExcelType;
 
 public class MyDataType extends ExcelType<MyDataType> {
-    private String value = null;
+    private String value;
 
     @Override
     public MyDataType parseValue(String value) {

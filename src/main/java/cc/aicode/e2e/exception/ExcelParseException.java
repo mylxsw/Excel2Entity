@@ -5,7 +5,7 @@ package cc.aicode.e2e.exception;
  */
 public class ExcelParseException extends Exception {
     private static final long serialVersionUID = 1L;
-    private String message = null;
+    private String message;
 
     public ExcelParseException(Exception e) {
         initCause(e);
